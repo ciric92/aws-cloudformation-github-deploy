@@ -1,6 +1,6 @@
 import * as aws from 'aws-sdk'
-import * as fs from 'fs'
 import { Parameter } from 'aws-sdk/clients/cloudformation'
+import * as fs from 'fs'
 
 export function isUrl(s: string): boolean {
   let url
@@ -36,6 +36,16 @@ export function parseNumber(s: string): number | undefined {
   return parseInt(s) || undefined
 }
 
+export function split(input: string, delimiter: string): string[] {
+  return input
+    .split('')
+    .reverse()
+    .join('')
+    .split(new RegExp(`${delimiter}(?!\\\\)`, 'g'))
+    .reverse()
+    .map(x => x.split('').reverse().join(''))
+}
+
 export function parseParameters(parameterOverrides: string): Parameter[] {
   try {
     const path = new URL(parameterOverrides)
@@ -49,10 +59,11 @@ export function parseParameters(parameterOverrides: string): Parameter[] {
   }
 
   const parameters = new Map<string, string>()
-  parameterOverrides.split(',').forEach(parameter => {
-    const [key, value] = parameter.trim().split('=')
+  split(parameterOverrides, ',').forEach(parameter => {
+    const [key, value] = split(parameter.trim(), '=')
+    const escapedValue = value.replace(/\\/g, '')
     let param = parameters.get(key)
-    param = !param ? value : [param, value].join(',')
+    param = !param ? escapedValue : [param, escapedValue].join(',')
     parameters.set(key, param)
   })
 

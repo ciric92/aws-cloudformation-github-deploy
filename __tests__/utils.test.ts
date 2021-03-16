@@ -1,5 +1,5 @@
-import { parseTags, isUrl, parseParameters } from '../src/utils'
 import * as path from 'path'
+import { isUrl, parseParameters, parseTags } from '../src/utils'
 
 jest.mock('@actions/core')
 
@@ -43,11 +43,11 @@ describe('Parse Parameters', () => {
   })
 
   test('returns parameters list from string', async () => {
-    const json = parseParameters('MyParam1=myValue1,MyParam2=myValue2')
+    const json = parseParameters('MyParam1=myVa\\,\\=lue1,MyParam2=myValue2')
     expect(json).toEqual([
       {
         ParameterKey: 'MyParam1',
-        ParameterValue: 'myValue1'
+        ParameterValue: 'myVa,=lue1'
       },
       {
         ParameterKey: 'MyParam2',
